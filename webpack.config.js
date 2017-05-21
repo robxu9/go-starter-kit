@@ -6,18 +6,31 @@ const MergeFilesPlugin = require('merge-files-webpack-plugin');
 const isProduction = process.env.NODE_ENV === 'production';
 
 // postcss config
-const postCSSConfig = function(loader) {
-    return [
-        require('autoprefixer')(),
-        require('precss')({
-            variables: {
-                variables: require('./client/css/vars')
-            }
-        }),
-        require('postcss-functions')({
-            functions: require('./client/css/funcs')
-        })
-    ];
+const postCSSConfig = {
+    plugins: function(loader) {
+        return [
+            require('autoprefixer')(),
+            require('precss')({
+                variables: {
+                    variables: require('./client/css/vars')
+                }
+            }),
+            require('postcss-functions')({
+                functions: require('./client/css/funcs')
+            })
+        ];
+    }
+};
+
+// css-loader config
+const cssLoaderConfig = {
+    modules: true,
+    disableStructuralMinification: true,
+    importLoaders: true
+};
+
+if (!isProduction) {
+    cssLoaderConfig.localIdentName = "[name]__[local]___[hash:base64:5]";
 }
 
 // plugins
@@ -40,8 +53,6 @@ if (isProduction) {
             }
         })
     ]);
-
-    postCssLoader.splice(1, 1); // drop human readable names
 };
 
 const extractCSS = new ExtractTextPlugin("bundle1.css");
@@ -73,17 +84,10 @@ const config = {
                 fallback: 'style-loader',
                 use: [{
                     loader: 'css-loader',
-                    options: {
-                        modules: true,
-                        localIdentName: "[name]__[local]___[hash:base64:5]",
-                        disableStructuralMinification: true,
-                        importLoaders: true
-                    }
+                    options: cssLoaderConfig
                 }, {
                     loader: 'postcss-loader',
-                    options: {
-                        plugins: postCSSConfig
-                    }
+                    options: postCSSConfig
                 }]
             })
         }, {
@@ -92,17 +96,10 @@ const config = {
                 fallback: 'style-loader',
                 use: [{
                     loader: 'css-loader',
-                    options: {
-                        modules: true,
-                        localIdentName: "[name]__[local]___[hash:base64:5]",
-                        disableStructuralMinification: true,
-                        importLoaders: true
-                    }
+                    options: cssLoaderConfig
                 }, {
                     loader: 'postcss-loader',
-                    options: {
-                        plugins: postCSSConfig
-                    }
+                    options: postCSSConfig
                 }, {
                     loader: 'sass-loader'
                 }]
