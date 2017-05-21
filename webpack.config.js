@@ -19,14 +19,17 @@ const postCSSConfig = {
                 functions: require('./client/css/funcs')
             })
         ];
-    }
+    },
+    sourceMap: !isProduction
 };
 
 // css-loader config
 const cssLoaderConfig = {
     modules: true,
     disableStructuralMinification: true,
-    importLoaders: true
+    importLoaders: 3,
+    minimize: isProduction,
+    sourceMap: !isProduction
 };
 
 if (!isProduction) {
@@ -101,7 +104,15 @@ const config = {
                     loader: 'postcss-loader',
                     options: postCSSConfig
                 }, {
-                    loader: 'sass-loader'
+                    loader: 'resolve-url-loader',
+                    options: {
+                        sourceMap: !isProduction
+                    }
+                }, {
+                    loader: 'sass-loader',
+                    options: {
+                        sourceMap: true
+                    }
                 }]
             })
         }, {
